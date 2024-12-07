@@ -64,29 +64,46 @@ def model_image(image: Image.Image) -> Image.Image:
 #     })
 @app.post("/file/")
 async def process_image(image_path: ImagePath):
-    # 이미지 경로 읽기
-    input_path = image_path.path
 
+    # 이미지 경로 읽기
+    BASE_DIR = '../front-end/public'
+
+    real_image_path = image_path.path[2:]
+    print(real_image_path)
+    input_path = real_image_path.replace('\\','/')
+    print(input_path)
+    print('input', input_path)
+    input_path = BASE_DIR + input_path
+    
+    # print('2',os.path.abspath(image_path.path))
+    # input_path = os.path.abspath(image_path.path)
+    print(input_path)
     if not os.path.exists(input_path):
         return {"error": "Image path does not exist"}
+    print('000000000000000000000')
 
     # 이미지 열기
     original_image = Image.open(input_path)
-
+    print('111111111111111111')
     # 모델 함수 호출
     processed_image = model_image(original_image)
-
+    print('2444444444444444')
     # 저장 경로 생성
     base_name, ext = os.path.splitext(os.path.basename(input_path))
-    output_path = os.path.join(
-        os.path.dirname(input_path), f"{base_name}_predict.png"
-    )
-
+    print(base_name)
+    output_path = BASE_DIR + "/testimage/" + f"{base_name}_predict.png"
+    # output_path = os.path.join(
+    #     BASE_DIR, f"{base_name}_predict.png"
+    # )
+    print(output_path)
+    print('222222222222')
     # 처리된 이미지 저장
     processed_image.save(output_path, format="PNG")
-
+    output_path = output_path.replace('\\','/')
+    print(output_path)
+    print('final')
     # 저장 경로 반환
-    return {"processed_image_path": output_path}
+    return {"processed_image_path": f"{base_name}_predict.png"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host = "127.0.0.1",port=8000,
